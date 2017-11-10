@@ -1,0 +1,65 @@
+#include <etherShield.h>
+#include <ETHER_28J60.h>
+ 
+//Define o MAC da placa de rede. Nao eh necessario alterar
+static uint8_t mac[6] = {0x54, 0x55, 0x58, 0x10, 0x00, 0x24};
+//Define o endereco IP da sua placa
+static uint8_t ip[4] = {192, 168, 0, 1};
+ 
+static uint16_t port = 80; 
+ 
+ETHER_28J60 e;
+ int ledPin = 7; //Led no pino 7
+int ldrPin = 0; //LDR no pino analígico 8
+int ldrValor = 0; //Valor lido do LDR
+int pin = 1; // Pino analogico para ligacao do LM35
+int tempc = 0; // Variavel que armazena a temperatura em Celsius
+// Variáveis para temperatura máxima e mínima
+int maxtemp = -100,mintemp = 100; 
+int i;
+ 
+void setup()
+{ 
+  Serial.begin(9600); //Inicia a comunicação serial
+  //Inicializa a placa com as configuracoes fornecidas
+  e.setup(mac, ip, port);
+}
+ 
+void loop()
+{
+
+ldrValor = analogRead(ldrPin); //O valor lido será entre 0 e 1023
+ 
+ //se o valor lido for maior que 500, liga o led
+ if (ldrValor>= 800) digitalWrite(ledPin,HIGH);
+ // senão, apaga o led
+ else digitalWrite(ledPin,LOW);
+ 
+ //imprime o valor lido do LDR no monitor serial
+// Serial.println(ldrValor);
+ delay(100);
+
+
+
+
+  
+/*  //Calcula o valor da temperatura
+  tempc = ( 5.0 * analogRead(pin) * 100.0) / 1024.0;
+ 
+  //Armazena a temperatura máxima na variavel maxtemp
+  if(tempc > maxtemp) {maxtemp = tempc;} 
+  //Armazena a temperatura máxima na variavel mintemp
+  if(tempc < mintemp) {mintemp = tempc;}*/ 
+ 
+  if (e.serviceRequest())
+  {
+    e.print("<H1>FILIPEFLOP - Teste ENC28J60</H1><br/>");
+    e.print("<b>Valor potenciometro porta analogica 5 : ");
+    e.print(analogRead(A5));
+    e.print("<br/><br/>");
+    e.print("Valor da luz: ");
+    e.print(ldrValor);
+    e.respond();
+  }
+  delay(100);
+}
